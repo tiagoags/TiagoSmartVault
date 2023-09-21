@@ -15,7 +15,7 @@ namespace SmartVault.CodeGeneration
             var mainMethod = context.Compilation.GetEntryPoint(context.CancellationToken);
 
             // Build up the source code
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < context.AdditionalFiles.Length; i++)
             {
                 var file = context.AdditionalFiles[i];
                 var fileContents = file.GetText().ToString();

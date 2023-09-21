@@ -38,11 +38,14 @@ namespace SmartVault.DataGeneration
                 {
                     var files = Directory.GetFiles(@"..\..\..\..\BusinessObjectSchema");
                     //scheme creation
-                    for (int i = 0; i <= 2; i++)
+                    for (int i = 0; i < files.Length; i++)
                     {
                         var serializer = new XmlSerializer(typeof(BusinessObject));
                         var businessObject = serializer.Deserialize(new StreamReader(files[i])) as BusinessObject;
-                        connection.Execute(businessObject?.ScriptWithCreatedOn);
+                        if (!string.IsNullOrEmpty(businessObject.Script))
+                        {
+                            connection.Execute(businessObject?.ScriptWithCreatedOn);
+                        }
 
                     }
 
