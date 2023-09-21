@@ -42,7 +42,7 @@ namespace SmartVault.DataGeneration
                     {
                         var serializer = new XmlSerializer(typeof(BusinessObject));
                         var businessObject = serializer.Deserialize(new StreamReader(files[i])) as BusinessObject;
-                        connection.Execute(businessObject?.Script);
+                        connection.Execute(businessObject?.ScriptWithCreatedOn);
 
                     }
 

@@ -36,6 +36,8 @@ namespace SmartVault.IntegratedTests
                 var account = accounts.Single();
                 Assert.AreEqual(0, account.Id);
                 Assert.AreEqual("Account0", account.Name);
+                Assert.IsTrue(HasCreatedOnProperty(account));
+                Assert.AreNotEqual(DateTime.MinValue, account.CreatedOn);
 
                 var users = connection.Query("SELECT * FROM User;");
 
@@ -45,13 +47,23 @@ namespace SmartVault.IntegratedTests
                 Assert.AreEqual("FName0", user.FirstName);
                 Assert.AreEqual("LName0", user.LastName);
                 Assert.AreEqual(0, user.AccountId);
+                Assert.IsTrue(HasCreatedOnProperty(user));
+                Assert.AreNotEqual(DateTime.MinValue, user.CreatedOn);
                 //TODO complete check the expected seed data info...
 
                 var documents = connection.Query("SELECT * FROM Document;");
                 var document = documents.Single();
                 Assert.AreEqual(0, document.Id);
+                Assert.IsTrue(HasCreatedOnProperty(document));
+                Assert.AreNotEqual(DateTime.MinValue, document.CreatedOn);
+            }
+
+            static bool HasCreatedOnProperty(dynamic entity)
+            {
+                return ((IDictionary<string, object>)entity).ContainsKey("CreatedOn");
             }
         }
+
 
 
     }

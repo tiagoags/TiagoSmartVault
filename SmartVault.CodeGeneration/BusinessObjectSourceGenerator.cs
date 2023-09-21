@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
-using System.Xml.Serialization;
-using System.IO;
-using System;
 using SmartVault.Library;
+using System;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace SmartVault.CodeGeneration
 {
@@ -26,9 +26,8 @@ namespace SmartVault.CodeGeneration
                 var businessObjectModel = (BusinessObject)serializer.Deserialize(reader);
 
                 string propertiesString = "";
-                for (int j = 0; j < businessObjectModel.PropertyGroup.Property.Count; j++)
+                foreach (var property in businessObjectModel.PropertyGroup.BusinessObjectProperties)
                 {
-                    var property = businessObjectModel.PropertyGroup.Property[j];
                     propertiesString += string.Format("        public {0} {1} {{ get; set; }}{2}", property.Type, property.Name, Environment.NewLine);
                 }
 
