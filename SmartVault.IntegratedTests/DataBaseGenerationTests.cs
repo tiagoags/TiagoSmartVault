@@ -7,9 +7,9 @@ namespace SmartVault.IntegratedTests
     {
 
         [Test]
-        public async Task DataBaseGeneration_ShouldTakeLessThan30seconds()
+        public async Task DataBaseGeneration_ShouldTakeLessThan15seconds()
         {
-            int timeout = 30000;
+            int timeout = 15000;
             Task task = Task.Run(() => DataGeneration.Program.DataBaseGeneration());
 
             // Wait for the task to complete or timeout
@@ -21,7 +21,7 @@ namespace SmartVault.IntegratedTests
             else
             {
 
-                Assert.Pass("DataBaseGeneration has been completed under 30 seconds");
+                Assert.Pass("DataBaseGeneration has been completed under 15 seconds");
             }
         }
 

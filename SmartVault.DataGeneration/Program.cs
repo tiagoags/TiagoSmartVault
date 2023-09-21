@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace SmartVault.DataGeneration
@@ -28,29 +29,69 @@ namespace SmartVault.DataGeneration
             SQLiteConnection.CreateFile(configuration.DatabaseFileName);
             File.WriteAllText("TestDoc.txt", $"This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}");
 
+            var randomDayIterator = RandomDay().GetEnumerator();
+
             using (var connection = new SQLiteConnection(configuration.FormatedConnectionString()))
             {
-                var files = Directory.GetFiles(@"..\..\..\..\BusinessObjectSchema");
-                for (int i = 0; i <= 2; i++)
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
                 {
-                    var serializer = new XmlSerializer(typeof(BusinessObject));
-                    var businessObject = serializer.Deserialize(new StreamReader(files[i])) as BusinessObject;
-                    connection.Execute(businessObject?.Script);
-
-                }
-                var documentNumber = 0;
-                for (int i = 0; i < numberOfUsersAndAccounts; i++)
-                {
-                    var randomDayIterator = RandomDay().GetEnumerator();
-                    randomDayIterator.MoveNext();
-                    connection.Execute($"INSERT INTO User (Id, FirstName, LastName, DateOfBirth, AccountId, Username, Password) VALUES('{i}','FName{i}','LName{i}','{randomDayIterator.Current.ToString("yyyy-MM-dd")}','{i}','UserName-{i}','e10adc3949ba59abbe56e057f20f883e')");
-                    connection.Execute($"INSERT INTO Account (Id, Name) VALUES('{i}','Account{i}')");
-
-                    for (int d = 0; d < numberOfDocumentsPerUser; d++, documentNumber++)
+                    var files = Directory.GetFiles(@"..\..\..\..\BusinessObjectSchema");
+                    //scheme creation
+                    for (int i = 0; i <= 2; i++)
                     {
-                        var documentPath = new FileInfo("TestDoc.txt").FullName;
-                        connection.Execute($"INSERT INTO Document (Id, Name, FilePath, Length, AccountId) VALUES('{documentNumber}','Document{i}-{d}.txt','{documentPath}','{new FileInfo(documentPath).Length}','{i}')");
+                        var serializer = new XmlSerializer(typeof(BusinessObject));
+                        var businessObject = serializer.Deserialize(new StreamReader(files[i])) as BusinessObject;
+                        connection.Execute(businessObject?.Script);
+
                     }
+
+
+                    var newUsers = Enumerable.Range(0, numberOfUsersAndAccounts).Select(
+                            userId =>
+                            {
+                                return new
+                                {
+                                    userId = userId,
+                                    firstName = $"FName{userId}",
+                                    lastName = $"LName{userId}",
+                                    dateOfBirth = randomDayIterator.MoveNext() ? randomDayIterator.Current : DateTime.MinValue,
+                                    accountId = userId,
+                                    userName = $"UserName-{userId}",
+                                    accountName = $"Account{userId}"
+                                };
+                            }
+                            );
+                    //https://github.com/DapperLib/Dapper#execute-a-command-multiple-times
+                    var usersAndAccountsCreatedCount = connection.Execute(@"INSERT INTO User (Id, FirstName, LastName, DateOfBirth, AccountId, Username, Password)
+                        VALUES(@userId,@firstName,@lastName,@dateOfBirth,@accountId,@userName, 'e10adc3949ba59abbe56e057f20f883e');
+                        INSERT INTO Account(Id, Name) VALUES(@userId, @accountName);", newUsers, transaction);
+
+
+                    var fileInfo = new FileInfo("TestDoc.txt");
+
+                    int documentNumber = 0;
+                    var allNewDocs = Enumerable.Range(0, numberOfUsersAndAccounts).SelectMany(userId =>
+                    {
+                        return Enumerable.Range(0, numberOfDocumentsPerUser).Select(
+                            x =>
+                            {
+                                return new
+                                {
+                                    docNumber = documentNumber++,
+                                    docName = $"Document{userId}-{x}.txt",
+                                    docPath = fileInfo.FullName,
+                                    docPathLength = fileInfo.Length,
+                                    accountId = userId
+                                };
+                            }
+                            );
+                    });
+
+                    var documentsCreatedCount = connection.Execute(@"insert into Document(Id, Name, FilePath, Length, AccountId) 
+                    values(@docNumber,@docName,@docPath,@docPathLength,@accountId)", allNewDocs, transaction);
+
+                    transaction.Commit();
                 }
 
                 stopWatch.Stop();
