@@ -1,6 +1,6 @@
 ﻿using Dapper;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using SmartVault.Core;
 using SmartVault.Library;
 using System;
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace SmartVault.DataGeneration
         {
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            DataBaseCreationConfig configuration = GetConfiguration();
+            DataBaseConfig configuration = SmartVaultConfigurationManager.GetDBConfiguration();
 
             SQLiteConnection.CreateFile(configuration.DatabaseFileName);
             File.WriteAllText("TestDoc.txt", $"This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}This is my test document{Environment.NewLine}");
@@ -65,7 +65,7 @@ namespace SmartVault.DataGeneration
                     //https://github.com/DapperLib/Dapper#execute-a-command-multiple-times
                     var usersAndAccountsCreatedCount = connection.Execute(@"INSERT INTO User (Id, FirstName, LastName, DateOfBirth, AccountId, Username, Password)
                         VALUES(@userId,@firstName,@lastName,@dateOfBirth,@accountId,@userName, 'e10adc3949ba59abbe56e057f20f883e');
-                        INSERT INTO Account(Id, Name) VALUES(@userId, @accountName);", newUsers, transaction);
+                        INSERT INTO Account(Id, Name) VALUES(@accountId, @accountName);", newUsers, transaction);
 
 
                     var fileInfo = new FileInfo("TestDoc.txt");
@@ -107,16 +107,6 @@ namespace SmartVault.DataGeneration
             }
         }
 
-        public static DataBaseCreationConfig GetConfiguration()
-        {
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json").Build();
-
-            DataBaseCreationConfig c = new DataBaseCreationConfig("", null);
-            config.Bind(c);
-            return c;
-        }
 
         static IEnumerable<DateTime> RandomDay()
         {

@@ -1,26 +1,21 @@
-﻿namespace SmartVault.Program
+﻿using SmartVault.Core.Services;
+
+namespace SmartVault.Program
 {
+
     partial class Program
     {
         static void Main(string[] args)
         {
+            var documentService = new DocumentService();
             if (args.Length == 0)
             {
                 return;
             }
 
-            WriteEveryThirdFileToFile(args[0]);
-            GetAllFileSizes();
+            documentService.WriteEveryThirdFileToFile(args[0]);
+            documentService.GetAllFileSizes();
         }
 
-        private static void GetAllFileSizes()
-        {
-            // TODO: Implement functionality
-        }
-
-        private static void WriteEveryThirdFileToFile(string accountId)
-        {
-            // TODO: Implement functionality
-        }
     }
 }

@@ -1,5 +1,11 @@
 using Dapper;
+using NUnit.Framework;
+using SmartVault.Core;
+using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SmartVault.IntegratedTests
 {
@@ -29,7 +35,7 @@ namespace SmartVault.IntegratedTests
         public async Task DataBaseGeneration_ShouldCreateEntites()
         {
             DataGeneration.Program.DataBaseGeneration(1, 1);
-            using (var connection = new SQLiteConnection(DataGeneration.Program.GetConfiguration().FormatedConnectionString()))
+            using (var connection = new SQLiteConnection(SmartVaultConfigurationManager.GetDBConfiguration().FormatedConnectionString()))
             {
                 var accounts = connection.Query("SELECT * FROM Account;");
 

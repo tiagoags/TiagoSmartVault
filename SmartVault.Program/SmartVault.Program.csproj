@@ -14,6 +14,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmartVault.CodeGeneration\SmartVault.CodeGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\SmartVault.Core\SmartVault.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
